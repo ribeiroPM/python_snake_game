@@ -10,13 +10,13 @@ screen = pygame.display.set_mode((screen_x, screen_y))
 screen_bg = (100, 100, 100)
 
 clock = pygame.time.Clock()
-fps = 10
+fps = 20
 
 cobrinha = {"cor": [255, 255, 255], "pos": [[x, 30] for x in range(1000, 20, -10)], "tamanho": 10, "design": 1}
-movimentos = {K_a: [0, -1, K_d], K_d: [0, 1, K_a], K_w: [1, -1, K_s], K_s: [1, 1, K_w]}
+movimentos = {K_a: [0, -1], K_d: [0, 1], K_w: [1, -1], K_s: [1, 1]}
 sentido_da_cobrinha = 0 # Gerencia em qual eixo a cobrinha vai se deslocar. 0=x, 1=y
 movimento_da_cobrinha = 1 # Gerencia se ela vai se movimentar para baixo/cima ou esquerda/direita.
-antigo_movimento_da_cobrinha = 0
+antigo_movimento_da_cobrinha = 0 
 
 
 run = True
@@ -30,6 +30,7 @@ while run:
 			if tecla in movimentos:
 				# Define o movimento e o sentido com base na tecla pressionada
 				if tecla == K_a and antigo_movimento_da_cobrinha == K_d:
+					# Cadeia de if's responsáveis por evitar movimentos "para trás", que resultariam em game_over
 					continue
 				elif tecla == K_d and antigo_movimento_da_cobrinha == K_a:
 					continue
@@ -46,6 +47,8 @@ while run:
 	# Salva a posicão antiga da cabeça da cobrinha
 	cabeca_da_cobrinha = cobrinha["pos"][0][:]
 	cobrinha["pos"][0][sentido_da_cobrinha] += movimento_da_cobrinha*10
+
+	# Verifica se a cobrinha atingiu os limites da tela
 	if cobrinha["pos"][0][0] > screen_x:
 		cobrinha["pos"][0][0] = 0
 	if cobrinha["pos"][0][1] > screen_y:
@@ -57,7 +60,7 @@ while run:
 
 	screen.fill(screen_bg)
 
-	# Atualioza o restante do corpo da cobrinha
+	# Atualiza o restante do corpo da cobrinha
 	for n_parte_da_cobrinha in range(1, len(cobrinha["pos"])):
 		posicao_atual = cobrinha["pos"][n_parte_da_cobrinha][:]
 		cobrinha["pos"][n_parte_da_cobrinha] = cabeca_da_cobrinha
