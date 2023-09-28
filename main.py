@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+from random import randint
 
 
 pygame.init()
@@ -12,12 +13,25 @@ screen_bg = (100, 100, 100)
 clock = pygame.time.Clock()
 fps = 20
 
-cobrinha = {"cor": [255, 255, 255], "pos": [[x, 30] for x in range(1000, 20, -10)], "tamanho": 10, "design": 1}
+# Variaveis a respeito da cobrinha
+cobrinha = {"cores": [[255, 255, 255], [255, 0, 255]], "pos": [[x, 30] for x in range(50, 20, -10)], "tamanho": 10, "design": 1}
 movimentos = {K_a: [0, -1], K_d: [0, 1], K_w: [1, -1], K_s: [1, 1]}
 sentido_da_cobrinha = 0 # Gerencia em qual eixo a cobrinha vai se deslocar. 0=x, 1=y
 movimento_da_cobrinha = 1 # Gerencia se ela vai se movimentar para baixo/cima ou esquerda/direita.
-antigo_movimento_da_cobrinha = 0 
+antigo_movimento_da_cobrinha = 0
 
+# Variaveis a respeito da frutinha
+def gera_fruta_nova():
+	return (randint(0, (screen_x-1)//10)*10, randint(0, (screen_y-1)//10)*10)
+fruta = {"tem_fruta": True, "pos": gera_fruta_nova(), "cor": [255, 0, 0]}
+print(fruta["pos"])
+
+
+
+def teve_colisao(ponto_a, ponto_b):
+	ponto = pygame.draw.rect(screen, (0, 0, 0), (ponto_a[0], ponto_a[1], 1, 1))
+	if ponto.collidepoint(ponto_b[0], ponto_b[1]):
+		return True
 
 run = True
 while run:
@@ -67,12 +81,27 @@ while run:
 		cabeca_da_cobrinha = posicao_atual
 		
 
+
 	# Desenha a cobrinha na tela
-	for parte_da_cobrinha in cobrinha["pos"]:
+	for numero_da_parte, parte_da_cobrinha in enumerate(cobrinha["pos"]):
 		x_pos = parte_da_cobrinha[0]
 		y_pos = parte_da_cobrinha[1]
 		tamanho = cobrinha["tamanho"] - cobrinha["design"]
-		pygame.draw.rect(screen, cobrinha["cor"], (x_pos, y_pos, tamanho, tamanho))
+		cor = cobrinha["cores"][0] if numero_da_parte != 0 else cobrinha["cores"][1]
+		pygame.draw.rect(screen, cor, (x_pos, y_pos, tamanho, tamanho))
+		if teve_colisao(cobrinha["pos"][0], parte_da_cobrinha) and numero_da_parte > 0:
+			run = False
+
+	# Desenha a fruta na tela
+	fruta_pos_x = fruta["pos"][0]
+	fruta_pos_y = fruta["pos"][1]
+	pygame.draw.rect(screen, fruta["cor"], (fruta_pos_x, fruta_pos_y, 10, 10))
+
+	if teve_colisao(cobrinha["pos"][0], fruta["pos"]):
+		fruta["pos"] = gera_fruta_nova()
+		cobrinha["pos"].append([0, 0])
+		print(fruta["pos"])
+
 
 	pygame.display.update()
 
