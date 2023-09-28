@@ -2,6 +2,8 @@ import pygame
 from pygame.locals import *
 from random import randint
 
+# O jogo ainda esta em processo de desenvolvimento, atualizacoes em breve
+
 
 pygame.init()
 
@@ -81,7 +83,6 @@ while run:
 		cabeca_da_cobrinha = posicao_atual
 		
 
-
 	# Desenha a cobrinha na tela
 	for numero_da_parte, parte_da_cobrinha in enumerate(cobrinha["pos"]):
 		x_pos = parte_da_cobrinha[0]
@@ -91,6 +92,7 @@ while run:
 		pygame.draw.rect(screen, cor, (x_pos, y_pos, tamanho, tamanho))
 		if teve_colisao(cobrinha["pos"][0], parte_da_cobrinha) and numero_da_parte > 0:
 			run = False
+
 
 	# Desenha a fruta na tela
 	fruta_pos_x = fruta["pos"][0]
