@@ -31,6 +31,14 @@ class Cobra:
 		# Define se será exibido as caixas de colisão
 		self.exibicao = False
 
+
+	def se_comeu(self):
+		lista_posicoes = [[pos["x"], pos["y"]] for pos in self.posicoes]
+		posicao_cabeca = lista_posicoes[0]
+		# Verifica e retorna se a cabeça ocupou alguma posição do corpo (se mordeu)
+		return posicao_cabeca in lista_posicoes[1:]
+
+
 	def update(self, surface):
 		# Possibilita aumentar ou diminuir o tamanho dos sprites a qualquer instante
 		self.imagens_transformadas = {x: pygame.transform.scale(y, (self.tamanho, self.tamanho)) for x, y in self.imagens.items()}
@@ -63,12 +71,11 @@ class Cobra:
 			direcao_antiga = posicao_nova["direcao_antiga"]
 			direcao_nova = posicao_nova["direcao_nova"]
 
-			print("*"  if direcao_antiga != direcao_nova else "#", end="")
-
 			if num_pos == 0: # Gerencia a parte da Cabeca
 				cor = self.cor_cabeca
 				# Roda o Sprite da Cabeça conforme a Direção que a cobrinha está
 				imagem = pygame.transform.rotate(self.imagens_transformadas["cabeca"], self.direcoes_cabeca_rabo[direcao_nova])
+			
 			elif num_pos == len(self.posicoes)-1: # Gerencia a parte do Rabo
 				cor = self.cor_rabo
 				# Roda o Sprite do Rabo conforme a Direção que a cobrinha está
@@ -76,8 +83,8 @@ class Cobra:
 					direcao_do_rabo = direcao_nova
 				else:
 					direcao_do_rabo = direcao_antiga
-				# direcao_do_rabo = direcao_antiga if posicao_x != posicao_y else direcao_nova
 				imagem = pygame.transform.rotate(self.imagens_transformadas["rabo"], self.direcoes_cabeca_rabo[direcao_do_rabo])
+			
 			else: # Gerencia o restante do Corpo
 				cor = self.cor
 				if direcao_antiga == direcao_nova: # Checa se está parte do corpo esta na mesma direção
@@ -105,15 +112,16 @@ class Cobra:
 
 			# Desenha o Sprite Selecionado
 			surface.blit(imagem, (posicao_x, posicao_y))
-		print()
+
 		# Após Atualizar e Desenhar todas as partes, o corpo entrará na mesma direção
 		self.posicoes[0]["direcao_antiga"] = self.posicoes[0]["direcao_nova"]
 
-		# Verifica se a Cabeça acertou alguma parte do Corpo (morte)
-		if self.posicoes[0] in self.posicoes[1:]:
+		# Verifica se a cobrinha se comeu
+		if self.se_comeu():
 			self.estado = False
 
-		
+
+
 	def para_esquerda(self):
 		# Define a direção antiga
 		self.direcao_antiga = self.direcao

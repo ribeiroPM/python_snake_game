@@ -30,8 +30,8 @@ contador_atualizacao = 0
 # Instancia a cobrinha
 cobra_1 = Cobra()
 cobra_2 = Cobra(tamanho=10, pos_y=100)
-cobra_3 = Cobra(pos_y=200)
-cobra_4 = Cobra(pos_y=300)
+cobra_3 = Cobra(tamanho=100, pos_y=200)
+cobra_4 = Cobra(tamanho=15, pos_y=300)
 
 # Mostra todas as informacoes da cobra
 show_infos = False
