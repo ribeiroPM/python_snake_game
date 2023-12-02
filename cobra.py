@@ -3,7 +3,7 @@ from pygame.locals import *
 from os import system
 class Cobra:
 	def __init__(self, tamanho=30, pos_x=30, pos_y=30):
-		self.quantidade_de_partes = 15
+		self.quantidade_de_partes = 10
 		self.tamanho = tamanho
 		self.pos_x_inicial = pos_x
 		self.pos_y_inicial = pos_y
@@ -17,20 +17,19 @@ class Cobra:
 		self.estado = True
 
 		# Importação e Transformação dos Sprites
-		self.imagens = {"tronco": pygame.image.load("tronco.png").convert_alpha(),
-						"cabeca": pygame.image.load("cabeca.png").convert_alpha(),
-						"rabo": pygame.image.load("rabo.png").convert_alpha(),
-						"dobrada": pygame.image.load("dobrada.png").convert_alpha(),
-						"dobrada_2": pygame.image.load("dobrada_2.png").convert_alpha()
+		self.imagens = {"tronco": pygame.image.load("imagens/tronco.png").convert_alpha(),
+						"cabeca": pygame.image.load("imagens/cabeca.png").convert_alpha(),
+						"rabo": pygame.image.load("imagens/rabo.png").convert_alpha(),
+						"dobrada": pygame.image.load("imagens/dobrada.png").convert_alpha(),
+						"dobrada_2": pygame.image.load("imagens/dobrada_2.png").convert_alpha()
 						}
 		self.imagens_transformadas = {}
 		
 		# Define os Sprites da Cabeca 
 		self.direcoes_cabeca_rabo = {"esquerda": 180, "direita": 0, "cima": 90, "baixo": -90}
 
-
 		# Define se será exibido as caixas de colisão
-		self.exibicao = True
+		self.exibicao = False
 
 	def update(self, surface):
 		# Possibilita aumentar ou diminuir o tamanho dos sprites a qualquer instante
@@ -63,6 +62,9 @@ class Cobra:
 			posicao_y = posicao_nova["y"]
 			direcao_antiga = posicao_nova["direcao_antiga"]
 			direcao_nova = posicao_nova["direcao_nova"]
+
+			print("*"  if direcao_antiga != direcao_nova else "#", end="")
+
 			if num_pos == 0: # Gerencia a parte da Cabeca
 				cor = self.cor_cabeca
 				# Roda o Sprite da Cabeça conforme a Direção que a cobrinha está
@@ -70,7 +72,11 @@ class Cobra:
 			elif num_pos == len(self.posicoes)-1: # Gerencia a parte do Rabo
 				cor = self.cor_rabo
 				# Roda o Sprite do Rabo conforme a Direção que a cobrinha está
-				direcao_do_rabo = direcao_antiga if posicao_x != posicao_y else direcao_nova
+				if direcao_nova != direcao_antiga: # Checa a dobra esta próxima do rabo, preparando ele para dobrar
+					direcao_do_rabo = direcao_nova
+				else:
+					direcao_do_rabo = direcao_antiga
+				# direcao_do_rabo = direcao_antiga if posicao_x != posicao_y else direcao_nova
 				imagem = pygame.transform.rotate(self.imagens_transformadas["rabo"], self.direcoes_cabeca_rabo[direcao_do_rabo])
 			else: # Gerencia o restante do Corpo
 				cor = self.cor
@@ -81,14 +87,10 @@ class Cobra:
 						imagem = pygame.transform.rotate(self.imagens_transformadas["tronco"], 90) # Se está indo para Cima ou Para Baixo, tronco rotacionado em 90 graus
 				else: # Se as direções Nova e Antiga forem diferentes, ocorrerá uma dobra
 					# Possivéis dobradas:
-						# Baixo    > Direita;
-						# Baixo    > Esquerda;
-						# Cima     > Direita;
-						# Cima     > Esquerda;
-						# Direita  > Baixo;
-						# Direita  > Cima;
-						# Esquerda > Baixo;
-						# Esquerda > Cima.
+					# Baixo    > Direita; Baixo    > Esquerda;
+					# Cima     > Direita; Cima     > Esquerda;
+					# Direita  > Baixo;   Direita  > Cima;
+					# Esquerda > Baixo;   Esquerda > Cima.
 					if (direcao_antiga == "direita" and direcao_nova == "cima") or (direcao_antiga == "baixo" and direcao_nova == "esquerda"):
 						imagem = self.imagens_transformadas["dobrada"]
 					elif (direcao_antiga == "direita" and direcao_nova == "baixo") or (direcao_antiga == "cima" and direcao_nova == "esquerda"):
@@ -103,7 +105,7 @@ class Cobra:
 
 			# Desenha o Sprite Selecionado
 			surface.blit(imagem, (posicao_x, posicao_y))
-
+		print()
 		# Após Atualizar e Desenhar todas as partes, o corpo entrará na mesma direção
 		self.posicoes[0]["direcao_antiga"] = self.posicoes[0]["direcao_nova"]
 
@@ -113,9 +115,12 @@ class Cobra:
 
 		
 	def para_esquerda(self):
+		# Define a direção antiga
 		self.direcao_antiga = self.direcao
+		# Evita que a cobrinha volte para "trás"
 		self.direcao = "esquerda" if self.direcao != "direita" else "direita"
-		if self.direcao != self.direcao_antiga:
+		if self.direcao != self.direcao_antiga: # Checa se a direção será alterada
+			# Atribui as direções à variável da cobrinha
 			self.posicoes[0]["direcao_antiga"] = self.direcao_antiga
 			self.posicoes[0]["direcao_nova"] = self.direcao
 	
